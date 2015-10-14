@@ -1,5 +1,5 @@
 /*
-	Read Only by HTML5 UP
+	Big Picture by HTML5 UP
 	html5up.net | @n33co
 	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
 */
@@ -7,106 +7,226 @@
 (function($) {
 
 	skel.breakpoints({
-		xlarge: '(max-width: 1680px)',
-		large: '(max-width: 1280px)',
-		medium: '(max-width: 1024px)',
-		small: '(max-width: 736px)',
-		xsmall: '(max-width: 480px)'
+		wide: '(max-width: 1920px)',
+		normal: '(max-width: 1680px)',
+		narrow: '(max-width: 1280px)',
+		narrower: '(max-width: 1000px)',
+		mobile: '(max-width: 736px)',
+		mobilenarrow: '(max-width: 480px)',
 	});
 
 	$(function() {
 
-		var $body = $('body'),
+		var	$window = $(window),
+			$body = $('body'),
 			$header = $('#header'),
-			$nav = $('#nav'), $nav_a = $nav.find('a'),
-			$wrapper = $('#wrapper');
+			$all = $body.add($header);
+
+		// Disable animations/transitions until the page has loaded.
+			$body.addClass('is-loading');
+
+			$window.on('load', function() {
+				window.setTimeout(function() {
+					$body.removeClass('is-loading');
+				}, 0);
+			});
+
+		// Touch mode.
+			skel.on('change', function() {
+
+				if (skel.vars.mobile || skel.breakpoint('mobile').active)
+					$body.addClass('is-touch');
+				else
+					$body.removeClass('is-touch');
+
+			});
 
 		// Fix: Placeholder polyfill.
 			$('form').placeholder();
 
-		// Prioritize "important" elements on medium.
-			skel.on('+medium -medium', function() {
+		// Prioritize "important" elements on mobile.
+			skel.on('+mobile -mobile', function() {
 				$.prioritize(
-					'.important\\28 medium\\29',
-					skel.breakpoint('medium').active
+					'.important\\28 mobile\\29',
+					skel.breakpoint('mobile').active
 				);
 			});
 
-		// Header.
-			var ids = [];
+		// CSS polyfills (IE<9).
+			if (skel.vars.IEVersion < 9)
+				$(':last-child').addClass('last-child');
 
-			// Set up nav items.
-				$nav_a
-					.scrolly({ offset: 44 })
-					.on('click', function(event) {
+		// Gallery.
+			$window.on('load', function() {
+				$('.gallery').poptrox({
+					baseZIndex: 10001,
+					useBodyOverflow: false,
+					usePopupEasyClose: false,
+					overlayColor: '#1f2328',
+					overlayOpacity: 0.65,
+					usePopupDefaultStyling: false,
+					usePopupCaption: true,
+					popupLoaderText: '',
+					windowMargin: (skel.breakpoint('mobile').active ? 5 : 50),
+					usePopupNav: true
+				});
+			});
 
-						var $this = $(this),
-							href = $this.attr('href');
+		// Section transitions.
+			if (!skel.vars.mobile
+			&&	skel.canUse('transition')) {
 
-						// Not an internal link? Bail.
-							if (href.charAt(0) != '#')
-								return;
+				var on = function() {
 
-						// Prevent default behavior.
-							event.preventDefault();
+					// Generic sections.
+						$('.main.style1')
+							.scrollex({
+								mode:		'middle',
+								delay:		100,
+								initialize:	function() { $(this).addClass('inactive'); },
+								terminate:	function() { $(this).removeClass('inactive'); },
+								enter:		function() { $(this).removeClass('inactive'); },
+								leave:		function() { $(this).addClass('inactive'); }
+							});
 
-						// Remove active class from all links and mark them as locked (so scrollzer leaves them alone).
-							$nav_a
-								.removeClass('active')
-								.addClass('scrollzer-locked');
+						$('.main.style2')
+							.scrollex({
+								mode:		'middle',
+								delay:		100,
+								initialize:	function() { $(this).addClass('inactive'); },
+								terminate:	function() { $(this).removeClass('inactive'); },
+								enter:		function() { $(this).removeClass('inactive'); },
+								leave:		function() { $(this).addClass('inactive'); }
+							});
 
-						// Set active class on this link.
-							$this.addClass('active');
+					// Work.
+						$('#work')
+							.scrollex({
+								top:		'40vh',
+								bottom:		'30vh',
+								delay:		50,
+								initialize:	function() {
 
-					})
-					.each(function() {
+												var t = $(this);
 
-						var $this = $(this),
-							href = $this.attr('href'),
-							id;
+												t.find('.row.images')
+													.addClass('inactive');
 
-						// Not an internal link? Bail.
-							if (href.charAt(0) != '#')
-								return;
+											},
+								terminate:	function() {
 
-						// Add to scrollzer ID list.
-							id = href.substring(1);
-							$this.attr('id', id + '-link');
-							ids.push(id);
+												var t = $(this);
 
-					});
+												t.find('.row.images')
+													.removeClass('inactive');
 
-			// Initialize scrollzer.
-				$.scrollzer(ids, { pad: 300, lastHack: true });
+											},
+								enter:		function() {
 
-		// Off-Canvas Navigation.
+												var t = $(this),
+													rows = t.find('.row.images'),
+													length = rows.length,
+													n = 0;
 
-			// Title Bar.
-				$(
-					'<div id="titleBar">' +
-						'<a href="#header" class="toggle"></a>' +
-						'<span class="title">' + $('#logo').html() + '</span>' +
-					'</div>'
-				)
-					.appendTo($body);
+												rows.each(function() {
+													var row = $(this);
+													window.setTimeout(function() {
+														row.removeClass('inactive');
+													}, 100 * (length - n++));
+												});
 
-			// Header.
-				$('#header')
-					.panel({
-						delay: 500,
-						hideOnClick: true,
-						hideOnSwipe: true,
-						resetScroll: true,
-						resetForms: true,
-						side: 'right',
-						target: $body,
-						visibleClass: 'header-visible'
-					});
+											},
+								leave:		function(t) {
 
-			// Fix: Remove navPanel transitions on WP<10 (poor/buggy performance).
-				if (skel.vars.os == 'wp' && skel.vars.osVersion < 10)
-					$('#titleBar, #header, #wrapper')
-						.css('transition', 'none');
+												var t = $(this),
+													rows = t.find('.row.images'),
+													length = rows.length,
+													n = 0;
+
+												rows.each(function() {
+													var row = $(this);
+													window.setTimeout(function() {
+														row.addClass('inactive');
+													}, 100 * (length - n++));
+												});
+
+											}
+							});
+
+					// Contact.
+						$('#contact')
+							.scrollex({
+								top:		'50%',
+								delay:		50,
+								initialize:	function() { $(this).addClass('inactive'); },
+								terminate:	function() { $(this).removeClass('inactive'); },
+								enter:		function() { $(this).removeClass('inactive'); },
+								leave:		function() { $(this).addClass('inactive'); }
+							});
+
+				};
+
+				var off = function() {
+
+					// Generic sections.
+						$('.main.style1')
+							.unscrollex();
+
+						$('.main.style2')
+							.unscrollex();
+
+					// Work.
+						$('#work')
+							.unscrollex();
+
+					// Contact.
+						$('#contact')
+							.unscrollex();
+
+				};
+
+				skel.on('change', function() {
+
+					if (skel.breakpoint('mobile').active)
+						(off)();
+					else
+						(on)();
+
+				});
+
+			}
+
+		// Events.
+			var resizeTimeout, resizeScrollTimeout;
+
+			$window
+				.resize(function() {
+
+					// Disable animations/transitions.
+						$body.addClass('is-resizing');
+
+					window.clearTimeout(resizeTimeout);
+
+					resizeTimeout = window.setTimeout(function() {
+
+						// Update scrolly links.
+							$('a[href^=#]').scrolly({
+								speed: 1500,
+								offset: $header.outerHeight() - 1
+							});
+
+						// Re-enable animations/transitions.
+							window.setTimeout(function() {
+								$body.removeClass('is-resizing');
+								$window.trigger('scroll');
+							}, 0);
+
+					}, 100);
+
+				})
+				.load(function() {
+					$window.trigger('resize');
+				});
 
 	});
 
