@@ -56,7 +56,6 @@
 		border: 0;
 		font-size: 100%;
 		font-family: NanumSquareNeo !important;
-		font-weight: 400 !important;
 		/* font: NanumSquareNeo, inherit; */
 		vertical-align: baseline;
 	}
@@ -171,7 +170,7 @@
 		color: #414f57;
 		font-family: "Source Sans Pro", Helvetica, sans-serif;
 		font-size: 14pt;
-		font-weight: 300;
+		font-weight: 600;
 		line-height: 2;
 		letter-spacing: 0.2em;
 		text-transform: uppercase;
