@@ -55,7 +55,7 @@
 		padding: 0;
 		border: 0;
 		font-size: 100%;
-		font-family: NanumMyeongjo;
+		font-family: NanumSquareNeo !important;
 		/* font: NanumSquareNeo, inherit; */
 		vertical-align: baseline;
 	}
